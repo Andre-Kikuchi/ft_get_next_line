@@ -122,39 +122,50 @@ The project must also compile without explicitly defining `BUFFER_SIZE`, using i
 
 ```c
 #include "get_next_line.h"
-#include <fcntl.h> // Usado para o open() e R_DONLY
-#include <stdio.h> // Usado para a printf
-#include <stdlib.h> // Usado para o free()
-#include <unistd.h> // Usado para o close()
+#include <fcntl.h>  // open() e O_RDONLY
+#include <stdio.h>  // printf
+#include <stdlib.h> // free()
+#include <unistd.h> // close()
 
-int	main(void)
+int main(int argc, char **argv)
 {
-	int		fd;
-	char	*line;
-	int		i;
+    int     fd;
+    char    *line;
+    int     i;
 
-	fd = open("alternate_empty.txt", O_RDONLY);
-	if (fd == -1)
-	{
-		line = get_next_line(fd);
-		if (line == NULL)
-			printf("NULL\n");
-		return (0);
-	}
+    // If a file is passed as an argument, open the file.
+	// If nothing is passed, use 0 (stdin / Standard Input).
+    if (argc > 1)
+        fd = open(argv[1], O_RDONLY);
+    else
+        fd = 0;
 
-	i = 1;
-	while ((line = get_next_line(fd)) != NULL)
-	{
-		printf("[%d] \"%s\"\n", i, line);
-		free(line);
-		i++;
-	}
+    if (fd == -1)
+    {
+        line = get_next_line(fd);
+        if (line == NULL)
+            printf("NULL\n");
+        return (0);
+    }
 
-	printf("[%d] NULL\n", i);
+    i = 1;
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        printf("[%d] \"%s\"\n", i, line);
+        free(line);
+        i++;
+    }
 
-	close(fd);
-	return (0);
+    printf("[%d] NULL\n", i);
+
+    if (fd > 2)
+        close(fd);
+    return (0);
 }
+
+./a.out test.txt
+or
+echo -en "Line 1\nLine 2" | ./a.out
 ```
 
 ---
